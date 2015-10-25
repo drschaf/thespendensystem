@@ -5,51 +5,57 @@ from math import ceil
 
 class Frontend(wx.Frame):
 	def __init__(self, parent, fastbuttons, Ls, language='DE'):
+
 		self.db = DB('DB')
 		self.fastbuttonlabels = fastbuttons
 		self.Ls = Ls
 		self.currentID = ""
-		
 		self.textobjects = {}
 
 		super(Frontend, self).__init__(parent, size=(800,600))
 		self.Centre()
+
 		panel = wx.Panel(self)
 
 		font = wx.SystemSettings_GetFont(wx.SYS_SYSTEM_FONT)
 		font.SetPointSize(14)
 
+		# "all-in-one-box"
 		vbox = wx.BoxSizer(wx.VERTICAL)
 
+		# ID box: ID label, text input, buttons
 		idbox = wx.BoxSizer(wx.HORIZONTAL)
-		idtext = wx.StaticText(panel, label='ID:')
-		idtext.Bind(wx.EVT_TEXT_ENTER, self.search)
-		idtext.Bind(wx.EVT_SET_FOCUS, self.textfocus)
-		idtext.SetFont(font)
-		idbox.Add(idtext, flag=wx.RIGHT, border=8)
 		
 		self.idinput = wx.TextCtrl(panel)
 		self.idinput.SetFont(font)
+		self.idinput.Bind(wx.EVT_TEXT_ENTER, self.search)
+		self.idinput.Bind(wx.EVT_SET_FOCUS, self.textfocus)
 		idbox.Add(self.idinput, proportion=1)
+
+		restore = wx.Button(panel, label="<", size=(30,-1))
+		restore.SetFont(font)
+		restore.Bind(wx.EVT_BUTTON, self.restore)
+		idbox.Add(restore)
 		
 		idsearch = wx.Button(panel)
 		idsearch.SetFont(font)
 		idsearch.Bind(wx.EVT_BUTTON, self.search)
 		idbox.Add(idsearch)
 		self.textobjects['load'] = idsearch
-		
-		vbox.Add(idbox, flag = wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
+				
+		vbox.Add(idbox, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM,
+			border=10)
 
+		# TEXT box: "Text" label, text area, grid for "fast-add" buttons
 		textbox = wx.BoxSizer(wx.VERTICAL)
-		texttext = wx.StaticText(panel, label='Text:')
-		texttext.SetFont(font)
-		textbox.Add(texttext)
 
 		inputsizer = wx.BoxSizer(wx.HORIZONTAL)
 		self.textinput = wx.TextCtrl(panel, style=wx.TE_MULTILINE)
 		self.textinput.SetFont(font)
 		inputsizer.Add(self.textinput, proportion=1, flag=wx.EXPAND)
 		
+		# grid for "fast-add" buttons
+		# 3 columns, ceil(n/3) rows, +2 for spacer and save/del/browse
 		gridCols = 3
 		gridRows = 2+int(ceil(float(len(self.fastbuttonlabels))/gridCols))
 		buttongrid = wx.GridSizer(gridRows, gridCols)
@@ -59,35 +65,37 @@ class Frontend(wx.Frame):
 			for y in xrange(gridRows-2):
 				try:
 					l = self.fastbuttonlabels[i]
-					b = wx.Button(panel, label=l, size=(100,50));
+					b = wx.Button(panel, label=l, size=(120,70));
 					b.Bind(wx.EVT_BUTTON, self.fastButtonAction)
 					b.SetFont(font)
 					self.fastbuttons.append(b)
 					buttongrid.Add(b)
-					
 				except:
-					buttongrid.Add((-1,-1))				
-				
-				i += 1
+					# fill with spacers if n%3 > 0
+					buttongrid.Add((-1,-1))		
+				i += 1		
 				
 		for x in xrange(gridCols):
-			buttongrid.Add((-1,5))
+			buttongrid.Add((-1,-1))
 
-		savebtn = wx.Button(panel, size=(100,50))
+		savebtn = wx.Button(panel, size=(120,70))
 		savebtn.Bind(wx.EVT_BUTTON, self.save)
 		savebtn.SetBackgroundColour("#CCFFCC")
+		savebtn.SetFont(font)
 		buttongrid.Add(savebtn, flag=wx.LEFT | wx.RIGHT)
 		self.textobjects['save'] = savebtn
 
-		rembtn = wx.Button(panel, size=(100,50))
+		rembtn = wx.Button(panel, size=(120,70))
 		rembtn.Bind(wx.EVT_BUTTON, self.remove)
 		rembtn.SetBackgroundColour("#FFCCCC")
+		rembtn.SetFont(font)
 		buttongrid.Add(rembtn, flag=wx.LEFT | wx.RIGHT)
 		self.textobjects['delete'] = rembtn
 
-		dbbtn = wx.Button(panel, size=(100,50))
+		dbbtn = wx.Button(panel, size=(120,70))
 		dbbtn.Bind(wx.EVT_BUTTON, self.openDBfolder)
 		dbbtn.SetBackgroundColour("#FFEECC")
+		dbbtn.SetFont(font)
 		buttongrid.Add(dbbtn, flag=wx.LEFT | wx.RIGHT)
 		self.textobjects['browse'] = dbbtn
 
@@ -96,10 +104,12 @@ class Frontend(wx.Frame):
 		
 		vbox.Add(textbox, proportion=1, flag=wx.LEFT | wx.RIGHT | wx.EXPAND, border=10)
 		
+		# LANGUAGE box: language buttons
 		langbox = wx.BoxSizer(wx.HORIZONTAL)
 		self.langbuttons = []
 		for key in Ls:
-			b = wx.Button(panel, label=key, size=(30,30))
+			b = wx.Button(panel, label=key, size=(40,40))
+			b.SetFont(font)
 			b.Bind(wx.EVT_BUTTON, self._setLanguage)
 			langbox.Add(b)
 		
@@ -113,21 +123,25 @@ class Frontend(wx.Frame):
 		self.Show()
 
 
-
+	# set button labels
 	def setLanguage(self, lan):
 		self.L = self.Ls[lan]
 		self.SetTitle(self.L['title'])
 		for i in self.L:
 			try:
 				self.textobjects[i].SetLabel(self.L[i])
-			except:
+			except KeyError:
+				# for language keywords without matching object (like
+				# dialog texts)
 				pass
 
 	#  --- button handlers ---
-	
+
+	# language buttons
 	def _setLanguage(self, E):
 		newlan = E.EventObject.GetLabelText()
 		self.setLanguage(newlan)
+		self.idinput.SetFocus()
 
 	# load button
 	def search(self, E):
@@ -139,6 +153,8 @@ class Frontend(wx.Frame):
 		theID = self.idinput.GetValue()
 		if theID == "":
 			wx.MessageBox(self.L['invalid_id'], "", wx.OK | wx.ICON_EXCLAMATION)
+			self.idinput.SetValue(self.currentID)
+			self.idinput.SetFocus()
 			return False
 			
 		t = self.db.get(theID)
@@ -150,6 +166,11 @@ class Frontend(wx.Frame):
 		
 		self.currentID = theID
 		self.idinput.SetFocus()
+		
+	# restore button
+	def restore(self, E):
+		self.idinput.SetValue(self.currentID)
+		self.idinput.SetFocus()
 								
 	# called when idinputbox is focussed
 	def textfocus(self, E):
@@ -158,7 +179,8 @@ class Frontend(wx.Frame):
 	# save button
 	def save(self, E):
 		theID = self.currentID
-		if theID == False:
+		if theID == "":
+			self.idinput.SetFocus()
 			return False
 			
 		text = self.textinput.GetValue()
@@ -180,7 +202,8 @@ class Frontend(wx.Frame):
 	# remove button
 	def remove(self, E):
 		theID = self.currentID
-		if theID == False:
+		if theID == "":
+			self.idinput.SetFocus()
 			return False
 
 		if wx.YES == wx.MessageBox(self.L['del_confirm'], theID, wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION):
@@ -194,3 +217,4 @@ class Frontend(wx.Frame):
 	# browse button
 	def openDBfolder(self, E):
 		subprocess.Popen(['xdg-open', self.db.getPath()])
+		self.idinput.SetFocus()

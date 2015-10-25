@@ -2,7 +2,16 @@
 from Frontend import Frontend
 import wx
 
-fastbuttons = ['Schuhe', 'Jacke', 'Pullover', 'Socken', 'Unterhosen']
+# "fast-add" buttons in grid on the right side
+fastbuttons = [
+	'Schuhe',
+	'Jacke',
+	'Pullover',
+	'Socken',
+	'Unterhosen'
+	]
+
+# language maps
 L = {}
 L['DE'] = {
 	'title':	"Spenden",
