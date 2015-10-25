@@ -166,6 +166,7 @@ class Frontend(wx.Frame):
 		
 		self.currentID = theID
 		self.idinput.SetFocus()
+		self.idinput.SelectAll()
 		
 	# restore button
 	def restore(self, E):
