@@ -3,7 +3,8 @@ from Frontend import Frontend
 import wx
 
 fastbuttons = ['Schuhe', 'Jacke', 'Pullover', 'Socken', 'Unterhosen']
-L = {
+L = {}
+L['DE'] = {
 	'title':	"Spenden",
 	'load':		"Laden",
 	'save':		"Speichern",
@@ -14,6 +15,19 @@ L = {
 	'saved':	"Eintrag gespeichert.",
 	'notsaved':	"Konnte nicht gespeichert werden!",
 	'del_confirm':	"Eintrag entfernen?"
+	}
+	
+L['EN'] = {
+	'title':	"Donations",
+	'load':		"load",
+	'save':		"save",
+	'delete':	"delete",
+	'browse':	"browse",
+	'invalid_id':	"Please enter an ID!",
+	'notfound':	"Entry not found, will be created.",
+	'saved':	"Entry saved.",
+	'notsaved':	"Could not save entry!",
+	'del_confirm':	"Delete entry?"
 	}
 
 app = wx.App()
