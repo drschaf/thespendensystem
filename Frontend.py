@@ -26,7 +26,7 @@ class Frontend(wx.Frame):
 		# ID box: ID label, text input, buttons
 		idbox = wx.BoxSizer(wx.HORIZONTAL)
 		
-		self.idinput = wx.TextCtrl(panel)
+		self.idinput = wx.TextCtrl(panel, style=wx.TE_PROCESS_ENTER)
 		self.idinput.SetFont(font)
 		self.idinput.Bind(wx.EVT_TEXT_ENTER, self.search)
 		self.idinput.Bind(wx.EVT_SET_FOCUS, self.textfocus)
